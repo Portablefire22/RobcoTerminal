@@ -1,0 +1,75 @@
+﻿@using UOS.Client.Types
+@inject HttpClient HttpClient
+
+
+@if (Text == "")
+{
+    <span>Loading archive...</span><BlinkComponent/> 
+}
+else
+{
+    <TyperComponent @bind-Finished="@TextFinished" Text="@Text" TimePer="0.01f"/>
+
+    <div class="robco-button-array">
+    @if (TextFinished)
+    {
+        <RobcoButtonComponent Entry="@Button" OnClick="@(() => OnClick(Button))"></RobcoButtonComponent>
+    }
+    </div>
+}
+
+@code {
+
+    public RobcoButtonEntry Button { get; set; } = new ()
+    {
+        State = 0,
+        Selected = true,
+        Text = "BACK"
+    };
+
+    [Parameter]
+    public int State
+    {
+        get;
+        set
+        {
+            if (field == value) return;
+            field = value;
+            StateChanged.InvokeAsync(value);
+        }
+    } = 1;
+    [Parameter] public EventCallback<int> StateChanged { get; set; } 
+    
+    [Parameter] public KeyboardEventArgs KeyboardEventArgs { get; set; }
+    public bool TextFinished { get; set; }
+    public string Text { get; set; } = "";
+    
+    protected async Task OnClick(RobcoButtonEntry entry)
+    {
+        await OnActivation(entry);
+    }
+   
+    protected async Task OnActivation(RobcoButtonEntry entry)
+    {
+        State = entry.State;
+        await InvokeAsync(StateHasChanged);
+    }
+    protected override void OnParametersSet()
+    {
+        KeyDown(KeyboardEventArgs);
+    }
+
+    protected void KeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter"){
+            OnActivation(Button);
+        }
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+       
+        Text = await HttpClient.GetStringAsync("/text/about.txt");
+        await InvokeAsync(StateHasChanged);
+    }
+}

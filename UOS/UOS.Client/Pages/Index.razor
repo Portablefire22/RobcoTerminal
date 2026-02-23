@@ -18,6 +18,9 @@
             case 0:
                 <MainMenu KeyboardEventArgs="@KeyboardEventArgs" @bind-State="@State"/>
                 break;
+            case 1:
+                <AboutMenu KeyboardEventArgs="@KeyboardEventArgs" @bind-State="@State"/>
+                break;    
             default:
                 @if (Text != "")
                 {
@@ -41,8 +44,17 @@
     
     public bool HeaderFinished { get; set; } = false;
 
-    private KeyboardEventArgs KeyboardEventArgs { get; set; } = new KeyboardEventArgs();
-    
+    private KeyboardEventArgs KeyboardEventArgs
+    {
+        get
+        {
+            var val = field;
+            field = new KeyboardEventArgs();
+            return val;
+        }
+        set;
+    } = new KeyboardEventArgs();
+
     public string Text { get; set; } = "";
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
