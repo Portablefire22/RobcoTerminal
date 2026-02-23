@@ -1,1 +1,4 @@
-Unified Operating System
+Language: C#
+Description: Based on the RobCo terminals in the Fallout franchise, this website hosts 
+             information about myself and a collection of projects that I feel are worthy 
+             of being shown off.

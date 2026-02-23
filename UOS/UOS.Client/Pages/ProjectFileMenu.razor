@@ -44,6 +44,8 @@ else
        {
            switch (State)
            {
+               case 14:
+                   return "Respite";
                case 4:
                    return "Kindred";
                case 5:
@@ -93,6 +95,13 @@ else
    protected override async Task OnAfterRenderAsync(bool firstRender)
    {
        if (!firstRender) return;
+
+       if (State == 14)
+       {
+           ButtonEntries = new []{ ButtonEntries[1] };
+           ButtonEntries[0].Selected = true;
+       }
+       
        RenderFragment x =
            (__builder) =>
            {
@@ -100,7 +109,10 @@ else
            };
        _buttons.Add(x);
 
-       ButtonEntries[0].Url = $"https://github.com/Portablefire22/{RepoName}";
+       if (State != 14)
+       {
+           ButtonEntries[0].Url = $"https://github.com/Portablefire22/{RepoName}";
+       }
        
        _ = Timer();
        
