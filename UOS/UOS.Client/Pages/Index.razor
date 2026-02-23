@@ -16,7 +16,7 @@
         @switch (State)
         {
             case 0:
-                <MainMenu KeyboardEventArgs="@KeyboardEventArgs"/>
+                <MainMenu KeyboardEventArgs="@KeyboardEventArgs" @bind-State="@State"/>
                 break;
             default:
                 @if (Text != "")
@@ -30,7 +30,12 @@
 </div>
     
 @code {
-    public uint State { get; set; } = 0;
+
+    public int State
+    {
+        get;
+        set;
+    } = 0;
 
     private ElementReference MainRef { get; set; }
     
@@ -56,7 +61,6 @@
     protected void KeyDown(KeyboardEventArgs e)
     {
         KeyboardEventArgs = e; 
-        Console.WriteLine("hello");
         StateHasChanged();
     }
 

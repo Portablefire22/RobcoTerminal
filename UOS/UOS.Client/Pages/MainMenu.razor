@@ -32,6 +32,7 @@ else
        get;
        set
        {
+           if (field == value) return;
            field = value;
            StateChanged.InvokeAsync(value);
        }
@@ -46,7 +47,7 @@ else
         new RobcoButtonEntry("PROJECTS", 2),
         new RobcoButtonEntry("ABOUT", 3),
         new RobcoButtonEntry("GITHUB", "https://github.com/Portablefire22/"),
-        new RobcoButtonEntry("SOURCE", "https://github.com/Portablefire22/UOS")
+        new RobcoButtonEntry("SOURCE", "https://github.com/Portablefire22/RobcoTerminal")
 
    ];
 
