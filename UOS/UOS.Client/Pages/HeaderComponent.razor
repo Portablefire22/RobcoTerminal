@@ -1,0 +1,21 @@
+﻿
+<div class="robco-header">
+   <TyperComponent @bind-Finished="Finished" Text="@Text" TimePer="0.05f"></TyperComponent>
+</div>
+
+@code {
+   [Parameter]
+   public bool Finished
+   {
+      get;
+      set
+      {
+         field = value;
+         FinishedChanged.InvokeAsync(value);
+      }
+   }
+
+   [Parameter] public EventCallback<bool> FinishedChanged { get; set; }
+
+   public string Text { get; set; } = "ROBCO INDUSTRIES UNIFIED OPERATING SYSTEM\nCOPYRIGHT 2075-2077 ROBCO INDUSTRIES\n-Server 7-";
+}

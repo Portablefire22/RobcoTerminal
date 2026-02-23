@@ -5,28 +5,35 @@
 
 <PageTitle>RobCo Industries Unified Operating System</PageTitle>
 
-@if (!RendererInfo.IsInteractive)
-{
-    return;
-}
+@if (!RendererInfo.IsInteractive) return;
 
-@switch (State)
-{
-    case 0:
-        <InitialLoading/>
-        break;
-    default:
-        @if (Text != "")
+<div class="robco-main">
+    <HeaderComponent @bind-Finished="HeaderFinished"/>
+    <div class="robco-content">
+    @if (HeaderFinished)
+    {
+        @switch (State)
         {
-            <DataCorruptionComponent ErrorCode="TerminalError.MemoryFault" Text="@Text"/>
-        }
-        break;
-}
+            case 0:
+                <InitialLoading/>
+                break;
+            default:
+                @if (Text != "")
+                {
+                    <DataCorruptionComponent ErrorCode="TerminalError.MemoryFault" Text="@Text"/>
+                }
 
+                break;
+        }
+    }
+    </div>
+</div>
     
 @code {
     public uint State { get; set; } = 1;
 
+    public bool HeaderFinished { get; set; } = false;
+    
     public string Text { get; set; } = "";
 
     protected override async Task OnAfterRenderAsync(bool firstRender)

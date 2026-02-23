@@ -1,10 +1,23 @@
 ﻿
-<span>@DisplayedText</span>
+<span>@DisplayedText@if(!Finished){<BlinkComponent/>}</span>
 
 @code {
     [Parameter] public string Text { get; set; } = "";
     [Parameter] public float TimePer { get; set; } = 0.005f;
 
+    [Parameter]
+    public bool Finished
+    {
+        get;
+        set
+        {
+            field = value;
+            FinishedChanged.InvokeAsync(value);
+        }
+    }
+
+    [Parameter] public EventCallback<bool> FinishedChanged { get; set; } 
+    
     private string DisplayedText { get; set; } = "";
 
     protected override void OnAfterRender(bool firstRender)
@@ -28,6 +41,8 @@
             await Task.Delay(delay);
             i++;
         }
+        Finished = true;
+        await InvokeAsync(StateHasChanged);
     }
 
 }
