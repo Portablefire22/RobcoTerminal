@@ -1,0 +1,8 @@
+﻿@using UOS.Client.Types
+<button class="@Entry.Class" onclick="@OnClick"><TyperComponent Text="@Entry.Text" @bind-Finished="@Entry.FinishedRendering" TimePer="0.05f"></TyperComponent></button>
+
+@code {
+    [Parameter] public RobcoButtonEntry Entry { get; set; }
+    [Parameter] public Action OnClick { get; set; }
+
+}

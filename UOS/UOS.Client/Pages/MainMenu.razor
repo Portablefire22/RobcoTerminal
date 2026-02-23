@@ -1,0 +1,144 @@
+﻿@using UOS.Client.Types
+@inject HttpClient HttpClient;
+@inject IJSRuntime JSRuntime;
+
+@if (Text == "")
+{
+    <BlinkComponent/> 
+}
+else
+{
+    <TyperComponent Text="@Text" @bind-Finished="TextFinished"></TyperComponent>
+    <div class="robco-button-array" @ref="ButtonArrayRef">
+       @if (TextFinished)
+       {
+           foreach (var button in _buttons)
+           {
+               @button
+           }
+       }
+    </div>
+}
+
+
+@code {
+   private bool TextFinished { get; set; }
+   
+   private string Text { get; set; } = "";
+   
+   [Parameter]
+   public int State
+   {
+       get;
+       set
+       {
+           field = value;
+           StateChanged.InvokeAsync(value);
+       }
+   }
+   [Parameter] public EventCallback<int> StateChanged { get; set; } 
+   
+   [Parameter] public KeyboardEventArgs KeyboardEventArgs { get; set; }
+
+   private RobcoButtonEntry[] ButtonEntries { get; set; } =
+   [
+       new RobcoButtonEntry("USER LOOKUP", 1) {Selected = true},
+        new RobcoButtonEntry("PROJECTS", 2),
+        new RobcoButtonEntry("ABOUT", 3),
+        new RobcoButtonEntry("GITHUB", "https://github.com/Portablefire22/"),
+        new RobcoButtonEntry("SOURCE", "https://github.com/Portablefire22/UOS")
+
+   ];
+
+   private List<RenderFragment> _buttons = [];
+   
+   protected ElementReference ButtonArrayRef;  // set by the @ref attribute
+
+   private int _currentPos
+   {
+       get;
+       set => field = int.Clamp(value, 0, _buttons.Count - 1);
+   } = 0;
+
+   protected override async Task OnAfterRenderAsync(bool firstRender)
+   {
+       if (!firstRender) return;
+       RenderFragment x =
+           (__builder) =>
+           {
+               <RobcoButtonComponent Entry="ButtonEntries[0]" OnClick="@(( ) => OnClick(ButtonEntries[0]))"/>;
+           };
+       _buttons.Add(x);
+       
+       _ = Timer();
+       
+       Text = await HttpClient.GetStringAsync("/text/mainMenu.txt");
+       await InvokeAsync(StateHasChanged);
+   }
+
+   private async Task Timer()
+   {
+       var count = 1;
+       while (_buttons.Count != ButtonEntries.Length)
+       {
+           if (ButtonEntries[count - 1].FinishedRendering)
+           {
+               var entryPos = count;
+               RenderFragment x =
+                   (__builder) =>
+                   {
+                       <RobcoButtonComponent Entry="ButtonEntries[entryPos]" OnClick="@( () => OnClick(ButtonEntries[entryPos]))"/>;
+                   };
+               _buttons.Add(x);
+               count++;
+               await InvokeAsync(StateHasChanged);
+           }
+           await Task.Delay(10);
+       }
+   }
+
+   protected override void OnParametersSet()
+   {
+       KeyDown(KeyboardEventArgs);
+   }
+
+   protected void KeyDown(KeyboardEventArgs e)
+   {
+       var t = _currentPos;
+       switch (e.Key)
+       {
+           case "ArrowUp":
+               _currentPos--;
+               break;
+           case "ArrowDown":
+               _currentPos++;
+               break;
+           case "Enter":
+               OnActivation(ButtonEntries[_currentPos]);
+               break;
+       }
+       if (t == _currentPos) return;
+       ButtonEntries[_currentPos].Selected = true;
+       ButtonEntries[t].Selected = false;
+       StateHasChanged();
+   }
+   
+   protected async Task OnClick(RobcoButtonEntry entry)
+   {
+       _currentPos = ButtonEntries.IndexOf(entry);
+       await InvokeAsync(StateHasChanged);
+       await OnActivation(entry);
+   }
+   
+   protected async Task OnActivation(RobcoButtonEntry entry)
+   {
+       if (entry.Url != null)
+       {
+           await JSRuntime.InvokeVoidAsync("open", entry.Url, "_blank");
+       }
+       else
+       {
+           State = entry.State;
+       }
+   }
+}

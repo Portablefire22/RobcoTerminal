@@ -1,13 +1,14 @@
 ﻿@page "/"
 @using UOS.Client.Types.Enums
 @inject HttpClient HttpClient;
+@inject IJSRuntime JSRuntime;
 @rendermode InteractiveWebAssembly
 
 <PageTitle>RobCo Industries Unified Operating System</PageTitle>
 
 @if (!RendererInfo.IsInteractive) return;
 
-<div class="robco-main">
+<div class="robco-main" @ref="@MainRef" tabindex="0" @onkeydown="@KeyDown">
     <HeaderComponent @bind-Finished="HeaderFinished"/>
     <div class="robco-content">
     @if (HeaderFinished)
@@ -15,14 +16,13 @@
         @switch (State)
         {
             case 0:
-                <InitialLoading/>
+                <MainMenu KeyboardEventArgs="@KeyboardEventArgs"/>
                 break;
             default:
                 @if (Text != "")
                 {
                     <DataCorruptionComponent ErrorCode="TerminalError.MemoryFault" Text="@Text"/>
                 }
-
                 break;
         }
     }
@@ -30,18 +30,34 @@
 </div>
     
 @code {
-    public uint State { get; set; } = 1;
+    public uint State { get; set; } = 0;
 
+    private ElementReference MainRef { get; set; }
+    
     public bool HeaderFinished { get; set; } = false;
+
+    private KeyboardEventArgs KeyboardEventArgs { get; set; } = new KeyboardEventArgs();
     
     public string Text { get; set; } = "";
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (!firstRender) return;
+        if (!firstRender)
+        {
+            await JSRuntime.InvokeVoidAsync("SetFocusToElement", MainRef);
+            return;
+        };
 
         Text = await HttpClient.GetStringAsync("/text/mainMenuCorrupted.txt");
         await InvokeAsync(StateHasChanged);
+    }
+
+   
+    protected void KeyDown(KeyboardEventArgs e)
+    {
+        KeyboardEventArgs = e; 
+        Console.WriteLine("hello");
+        StateHasChanged();
     }
 
 }

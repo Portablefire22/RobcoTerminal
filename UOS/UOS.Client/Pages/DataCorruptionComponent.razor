@@ -15,7 +15,7 @@
       {
          var tmp = CorruptText(Text);
 
-         tmp += $"\n\n\n\nERROR 0x{(int)ErrorCode:X8}\n{TerminalErrorConverter.ToString(ErrorCode)}";
+         tmp += $"\n\nERROR 0x{(int)ErrorCode:X8}\n{TerminalErrorConverter.ToString(ErrorCode)}";
          Text = tmp;
       }
    }

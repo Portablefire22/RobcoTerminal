@@ -1,20 +1,42 @@
+:root {
+    --robco-text: #4cb97f;
+    --robco-background: #0a2417;
+}
+
+html {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+}
+
+.page {
+    width: 100%;
+    height: 100%;
+}
+
+
 @font-face {
     font-family: "fixedsys";
     src: url('fonts/FSEX302.ttf') format('truetype');
 }
 
-body {
+* {
     font-family: "fixedsys", monospace;
-    color: #4CB97F;
-    background-color: #0A2417;
-    padding: 2em;
+}
+
+body {
+    background-color: var(--robco-background);
     font-size: 1rem;
     white-space: pre-wrap;
+    color: var(--robco-text);
+    width: 100%;
+    height: 100%;
 }
 
 .robco-main {
     display: flex;
     flex-direction: column;
+    padding: 2em;
     width: 100%;
     height: 100%;
 }
@@ -31,6 +53,39 @@ body {
         width: 90%;
     }
 
+}
+
+.robco-button-array {
+    display: flex;
+    flex-direction: column;
+    width: max-content;
+}
+
+*:focus {
+    outline: none;
+}
+
+.robco-button-array button:before {
+    content: "> ";
+}
+
+.robco-button-array button {
+    text-align: left;
+    font-size: 1.25rem;
+    background: none;
+    margin: 0.25rem 0 0 0;
+    padding: 0 1rem 0 0;
+    color: var(--robco-text);
+    border: none;
+}
+.robco-button-array button:hover {
+    color: var(--robco-background);
+    background-color: var(--robco-text);
+}
+
+.robco-button-array button.robco-hovered {
+    color: var(--robco-background);
+    background-color: var(--robco-text);
 }
 
 .valid.modified:not([type=checkbox]) {

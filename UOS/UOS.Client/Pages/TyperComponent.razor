@@ -36,7 +36,6 @@
             DisplayedText += Text[i];
             await InvokeAsync(StateHasChanged);
             var delay = time - rand.Next(-(time / 2), time);
-            Console.WriteLine($"{delay}");
             Math.Clamp(delay, 10, int.MaxValue);
             await Task.Delay(delay);
             i++;
