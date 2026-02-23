@@ -1,0 +1,33 @@
+﻿
+<span>@DisplayedText</span>
+
+@code {
+    [Parameter] public string Text { get; set; } = "";
+    [Parameter] public float TimePer { get; set; } = 0.005f;
+
+    private string DisplayedText { get; set; } = "";
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (!firstRender) return;
+        _ = Timer();
+    }
+
+    private async Task Timer()
+    {
+        int i = 0;
+        var time = (int) (TimePer * 1000);
+        var rand = new Random(DateTime.Now.Second);
+        while (i < Text.Length)
+        {
+            DisplayedText += Text[i];
+            await InvokeAsync(StateHasChanged);
+            var delay = time - rand.Next(-(time / 2), time);
+            Console.WriteLine($"{delay}");
+            Math.Clamp(delay, 10, int.MaxValue);
+            await Task.Delay(delay);
+            i++;
+        }
+    }
+
+}

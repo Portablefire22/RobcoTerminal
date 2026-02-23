@@ -1,0 +1,39 @@
+﻿@using UOS.Client.Types.Enums
+
+<TyperComponent Text="@Text"/>
+
+@code {
+   [Parameter] public string? Text { get; set; }
+   
+   [Parameter] public TerminalError ErrorCode { get; set; }
+   
+   const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+
+   protected override void OnInitialized()
+   {
+      if (ErrorCode is TerminalError.CorruptProcessor or TerminalError.MemoryFault or TerminalError.BadData or TerminalError.BadSector)
+      {
+         var tmp = CorruptText(Text);
+
+         tmp += $"\n\n\n\nERROR 0x{(int)ErrorCode:X8}\n{TerminalErrorConverter.ToString(ErrorCode)}";
+         Text = tmp;
+      }
+   }
+
+   private string CorruptText(string? data)
+   {
+      if (data == null) return "";
+      var str = data.ToCharArray();
+      var rand = new Random(DateTime.Now.Millisecond);
+      for (int i = 0; i < data.Length; i++)
+      {
+         var val = rand.Next(0, 10);
+         if (val > 7)
+         {
+            str[i] = chars[rand.Next(0, chars.Length)];
+         }
+      }
+      return new string(str) ?? "ERR";
+   }
+
+}

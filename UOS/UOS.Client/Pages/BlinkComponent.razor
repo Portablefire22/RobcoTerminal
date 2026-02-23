@@ -1,0 +1,26 @@
+﻿<p style="visibility: @Show">█</p>
+
+@code {
+    private bool _show = true;
+
+    private string Show => _show ? "visible" : "hidden";
+    
+    protected override void OnInitialized()
+    {
+        if (!RendererInfo.IsInteractive) return;
+        _ = Timer();
+    }
+
+    async Task Timer()
+    {
+        while (true)
+        {
+            await Task.Delay(500);
+            _show = !_show;
+            await InvokeAsync(StateHasChanged);
+        }
+
+        return;
+    }
+
+}

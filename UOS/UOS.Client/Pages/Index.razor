@@ -1,0 +1,40 @@
+﻿@page "/"
+@using UOS.Client.Types.Enums
+@inject HttpClient HttpClient;
+@rendermode InteractiveWebAssembly
+
+<PageTitle>RobCo Industries Unified Operating System</PageTitle>
+
+@if (!RendererInfo.IsInteractive)
+{
+    return;
+}
+
+@switch (State)
+{
+    case 0:
+        <InitialLoading/>
+        break;
+    default:
+        @if (Text != "")
+        {
+            <DataCorruptionComponent ErrorCode="TerminalError.MemoryFault" Text="@Text"/>
+        }
+        break;
+}
+
+    
+@code {
+    public uint State { get; set; } = 1;
+
+    public string Text { get; set; } = "";
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+
+        Text = await HttpClient.GetStringAsync("/text/mainMenuCorrupted.txt");
+        await InvokeAsync(StateHasChanged);
+    }
+
+}
