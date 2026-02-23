@@ -21,6 +21,23 @@
             case 1:
                 <AboutMenu KeyboardEventArgs="@KeyboardEventArgs" @bind-State="@State"/>
                 break;    
+            case 2:
+                <ProjectsMenu KeyboardEventArgs="@KeyboardEventArgs" @bind-State="@State"/>
+                break;
+            case 3:
+                break;
+            case 4:
+            case 5:
+            case 6:
+            case 7:
+            case 8:
+            case 9:
+            case 10:
+            case 11:
+            case 12:
+            case 13:
+                <ProjectFileMenu KeyboardEventArgs="@KeyboardEventArgs" @bind-State="@State"/>
+                break;
             default:
                 @if (Text != "")
                 {

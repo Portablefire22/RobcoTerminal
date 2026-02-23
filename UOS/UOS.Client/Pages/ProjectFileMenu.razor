@@ -1,0 +1,176 @@
+﻿@using UOS.Client.Types
+@inject HttpClient HttpClient;
+@inject IJSRuntime JSRuntime;
+
+@if (Text == "")
+{
+    <BlinkComponent/> 
+}
+else
+{
+    <TyperComponent Text="@Text" @bind-Finished="TextFinished"></TyperComponent>
+    <div class="robco-button-array" @ref="ButtonArrayRef">
+       @if (TextFinished)
+       {
+           foreach (var button in _buttons)
+           {
+               @button
+           }
+       }
+    </div>
+}
+
+
+@code {
+   private bool TextFinished { get; set; }
+   
+   private string Text { get; set; } = "";
+   
+   [Parameter]
+   public int State
+   {
+       get;
+       set
+       {
+           if (field == value) return;
+           field = value;
+           StateChanged.InvokeAsync(value);
+       }
+   }
+
+   public string RepoName
+   {
+       get
+       {
+           switch (State)
+           {
+               case 4:
+                   return "Kindred";
+               case 5:
+                   return "Neeko";
+               case 6:
+                   return "Khada";
+               case 7:
+                   return "Nexus";
+               case 8:
+                   return "Camille";
+               case 9:
+                   return "Sigrun";
+               case 10:
+                   return "RobcoTerminal";
+               case 11:
+                   return "Washington";
+               case 12:
+                   return "Storage-Slave";
+               case 13:
+                   return "Vulkan-Voxel";
+               default:
+                   return "ERR";
+           }
+       }
+   }
+
+   [Parameter] public EventCallback<int> StateChanged { get; set; } 
+   
+   [Parameter] public KeyboardEventArgs KeyboardEventArgs { get; set; }
+
+   private RobcoButtonEntry[] ButtonEntries { get; set; } =
+   [
+       new RobcoButtonEntry("SOURCE", $"https://lilith.rs") {Selected = true},
+       new RobcoButtonEntry("BACK", 2),
+   ];
+
+   private List<RenderFragment> _buttons = [];
+   
+   protected ElementReference ButtonArrayRef;  // set by the @ref attribute
+
+   private int _currentPos
+   {
+       get;
+       set => field = int.Clamp(value, 0, _buttons.Count - 1);
+   } = 0;
+
+   protected override async Task OnAfterRenderAsync(bool firstRender)
+   {
+       if (!firstRender) return;
+       RenderFragment x =
+           (__builder) =>
+           {
+               <RobcoButtonComponent Entry="ButtonEntries[0]" OnClick="@(( ) => OnClick(ButtonEntries[0]))"/>;
+           };
+       _buttons.Add(x);
+
+       ButtonEntries[0].Url = $"https://github.com/Portablefire22/{RepoName}";
+       
+       _ = Timer();
+       
+       Text = await HttpClient.GetStringAsync($"/text/projects/{RepoName}.txt");
+       await InvokeAsync(StateHasChanged);
+   }
+
+   private async Task Timer()
+   {
+       var count = 1;
+       while (_buttons.Count != ButtonEntries.Length)
+       {
+           if (ButtonEntries[count - 1].FinishedRendering)
+           {
+               var entryPos = count;
+               RenderFragment x =
+                   (__builder) =>
+                   {
+                       <RobcoButtonComponent Entry="ButtonEntries[entryPos]" OnClick="@( () => OnClick(ButtonEntries[entryPos]))"/>;
+                   };
+               _buttons.Add(x);
+               count++;
+               await InvokeAsync(StateHasChanged);
+           }
+           await Task.Delay(10);
+       }
+   }
+
+   protected override void OnParametersSet()
+   {
+       KeyDown(KeyboardEventArgs);
+   }
+
+   protected void KeyDown(KeyboardEventArgs e)
+   {
+       var t = _currentPos;
+       switch (e.Key)
+       {
+           case "ArrowUp":
+               _currentPos--;
+               break;
+           case "ArrowDown":
+               _currentPos++;
+               break;
+           case "Enter":
+               OnActivation(ButtonEntries[_currentPos]);
+               break;
+       }
+       if (t == _currentPos) return;
+       ButtonEntries[_currentPos].Selected = true;
+       ButtonEntries[t].Selected = false;
+       StateHasChanged();
+   }
+   
+   protected async Task OnClick(RobcoButtonEntry entry)
+   {
+       _currentPos = ButtonEntries.IndexOf(entry);
+       await InvokeAsync(StateHasChanged);
+       await OnActivation(entry);
+   }
+   
+   protected async Task OnActivation(RobcoButtonEntry entry)
+   {
+       if (entry.Url != null)
+       {
+           await JSRuntime.InvokeVoidAsync("open", entry.Url, "_blank");
+       }
+       else
+       {
+           State = entry.State;
+       }
+   }
+}
